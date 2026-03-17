@@ -1,0 +1,5 @@
+{
+  "name": "Controle de Empréstimos",
+  "description": "Sistema simples para controle de empréstimos pessoais com juros, gráficos e alertas.",
+  "requestFramePermissions": []
+}

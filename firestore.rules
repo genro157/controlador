@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: loans
+    // Fields:
+    //   - clientName: string (required)
+    //   - amountLoaned: number (required)
+    //   - amountToReceive: number (required)
+    //   - loanDate: string (required, date format)
+    //   - dueDate: string (required, date format)
+    //   - status: string (required, enum: ['pendente', 'pago', 'atrasado'])
+    //   - paymentMethod: string (optional)
+    //   - notes: string (optional)
+    //   - uid: string (required, owner ID)
+    //   - createdAt: string (required, date-time format)
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.uid;
+    }
+
+    function uidUnchanged() {
+      return !('uid' in request.resource.data) || request.resource.data.uid == request.auth.uid;
+    }
+
+    function uidNotModified() {
+      return !('uid' in request.resource.data) || request.resource.data.uid == resource.data.uid;
+    }
+
+    function isValidLoan(data) {
+      return data.clientName is string && data.clientName.size() > 0 && data.clientName.size() < 100 &&
+             data.amountLoaned is number && data.amountLoaned >= 0 &&
+             data.amountToReceive is number && data.amountToReceive >= 0 &&
+             data.status in ['pendente', 'pago', 'atrasado'] &&
+             data.uid == request.auth.uid;
+    }
+
+    match /loans/{loanId} {
+      allow read: if isDocOwner();
+      allow create: if isAuthenticated() && isValidLoan(request.resource.data) && uidUnchanged();
+      allow update: if isDocOwner() && isValidLoan(request.resource.data) && uidNotModified();
+      allow delete: if isDocOwner();
+    }
+  }
+}

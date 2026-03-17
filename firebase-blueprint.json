@@ -1,0 +1,28 @@
+{
+  "entities": {
+    "Loan": {
+      "title": "Empréstimo",
+      "description": "Dados de um empréstimo pessoal",
+      "type": "object",
+      "properties": {
+        "clientName": { "type": "string", "description": "Nome do cliente" },
+        "amountLoaned": { "type": "number", "description": "Valor emprestado" },
+        "amountToReceive": { "type": "number", "description": "Valor a receber" },
+        "loanDate": { "type": "string", "format": "date", "description": "Data do empréstimo" },
+        "dueDate": { "type": "string", "format": "date", "description": "Data de vencimento" },
+        "status": { "type": "string", "enum": ["pendente", "pago", "atrasado"], "description": "Status do empréstimo" },
+        "paymentMethod": { "type": "string", "description": "Forma de pagamento" },
+        "notes": { "type": "string", "description": "Observações" },
+        "uid": { "type": "string", "description": "ID do usuário dono do registro" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Data de criação" }
+      },
+      "required": ["clientName", "amountLoaned", "amountToReceive", "loanDate", "dueDate", "status", "uid"]
+    }
+  },
+  "firestore": {
+    "/loans": {
+      "schema": "Loan",
+      "description": "Coleção de empréstimos"
+    }
+  }
+}
